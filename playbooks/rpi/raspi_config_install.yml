@@ -1,0 +1,15 @@
+---
+- name: Manually install raspi-config
+  become: yes
+  hosts: cla
+
+  vars:
+    raspi_config: raspi-config_20200902_all.deb
+    raspi_config_dl: "https://archive.raspberrypi.org/debian/pool/main/r/raspi-config/{{ raspi_config }}"
+
+  tasks:
+    - name: Install raspi-config
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+        deb: "{{ raspi_config_dl }}"

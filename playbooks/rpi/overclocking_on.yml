@@ -1,0 +1,22 @@
+---
+- name: Add overclocking
+  become: yes
+  hosts: cla
+
+  vars:
+    overclock_lines:
+      - "# Overclock"
+      - "over_voltage=5"
+      - "arm_freq=2000"
+
+  tasks:
+    - name: "Add overclocking lines to usercfg.txt"
+      lineinfile:
+        path: /boot/firmware/usercfg.txt
+        line: "{{ item }}"
+      loop: "{{ overclock_lines }}"
+      register: overclock_added
+      
+    - name: Reboot to take effect
+      when: overclock_added is changed
+      reboot:

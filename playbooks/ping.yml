@@ -1,0 +1,7 @@
+---
+- name: Ping
+  hosts: cla
+
+  tasks:
+  - name: Ping check
+    ping:

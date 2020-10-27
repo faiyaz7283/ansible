@@ -1,0 +1,10 @@
+---
+- name: Shutdown
+  hosts: cla
+
+  tasks:
+    - name: System shutdown
+      become: yes
+      shell: sleep 2 && /sbin/shutdown -c && /sbin/shutdown -h now
+      async: 1
+      poll: 0

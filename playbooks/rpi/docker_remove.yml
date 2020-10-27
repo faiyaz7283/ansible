@@ -1,0 +1,36 @@
+---
+- name: Remove docker engine and all containers, volumes, images, GPG key and repo
+  become: yes
+  hosts: cla
+
+  vars:
+    docker_gpg_id: 9DC858229FC7DD38854AE2D88D81803C0EBFCD88
+    docker_gpg_url: https://download.docker.com/linux/ubuntu/gpg
+    docker_repo: "deb [arch=arm64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+
+  tasks:
+    - name: Remove docker engine
+      apt:
+        state: absent
+        purge: yes
+        pkg:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+
+    - name: Remove all images, containers, and volumes 
+      file:
+        state: absent
+        path: /var/lib/docker
+      
+    - name: Remove docker repository
+      apt_repository:
+        state: absent
+        repo: "{{ docker_repo }}"
+
+    - name: Remove docker GPG apt key
+      apt_key:
+        state: absent
+        url: "{{ docker_gpg_url }}" 
+        id: "{{ docker_gpg_id }}"
+
