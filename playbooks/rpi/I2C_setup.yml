@@ -1,10 +1,6 @@
 ---
 - name: I2C setup
-  hosts: cla
-
-  vars:
-    cla_user: ubuntu
-    git_url: "https://raw.githubusercontent.com/faiyaz7283/rpi_display_scripts/master"
+  hosts: "{{ target_hosts | default('debian') }}"
 
   tasks:
     - name: Install tools and dependencies to manage I2C
@@ -12,57 +8,42 @@
       apt:
         update_cache: yes
         cache_valid_time: 3600
-        pkg:
-          - i2c-tools
-          - libi2c-dev
-          - python3-dev
-          - python3-pil
-          - python3-pip
-          - python3-rpi.gpio
-          - python3-setuptools
-          - python3-smbus
+        pkg: "{{ i2c_tools_and_dependencies_apt_pkgs }}"
 
-    - name: Add user to i2c group
+    - name: "Add user to {{ i2c_group }} group"
       become: yes
       user:
-        name: "{{ cla_user }}"
-        groups: i2c
+        name: "{{ ansible_user }}"
+        groups: "{{ i2c_group }}"
         append: yes
 
     - name: Install Python libraries for display device
       pip:
-        name:
-          - adafruit-circuitpython-framebuf
-          - adafruit-circuitpython-lis3dh
-          - adafruit-circuitpython-ssd1306
+        name: "{{ ssd1306_pip_pkgs }}"
 
-    - name: Check if I2C is enabled on syscfg txt file
+    - name: "Check if I2C is enabled in {{ boot_syscfg_txt_file }}"
       become: yes
       lineinfile:
-        path: /boot/firmware/syscfg.txt
-        line: "dtparam=i2c_arm=on"
+        path: "{{ boot_syscfg_txt_file }}"
+        line: "{{ i2c_enable_lines[1] }}"
       check_mode: yes
       register: i2c_enable_result
 
-    - name: If I2C is disable then enable 
+    - name: "If I2C is disable then enable in {{ boot_usercfg_txt_file }}"
       become: yes
       lineinfile:
-        path: /boot/firmware/usercfg.txt
+        path: "{{ boot_usercfg_txt_file }}"
         line: "{{ item }}"
-      loop:
-        - "# Enable I2C"
-        - "dtparam=i2c_arm=on"
+      loop: "{{ i2c_enable_lines }}"
       when: i2c_enable_result is changed
       register: i2c_enable
       
-    - name: Increase I2c core to 1MHz
+    - name: "Increase I2c core to 1MHz in {{ boot_usercfg_txt_file }}"
       become: yes
       lineinfile:
-        path: /boot/firmware/usercfg.txt
+        path: "{{ boot_usercfg_txt_file }}"
         line: "{{ item }}"
-      loop:
-        - "# Increase I2C core to 1MHz"
-        - "dtparam=i2c_baudrate=1000000"
+      loop: "{{ i2c_increase_core_lines }}"
       register: i2c_core_increase
 
     - name: Reboot the system if config changes were made
@@ -70,10 +51,8 @@
       when: i2c_enable is changed or i2c_core_increase is changed
       reboot:
 
-    - name: Download scripts for for I2C display devices
+    - name: Download scripts for I2C display devices
       get_url:
-        url: "{{ git_url }}/{{ item }}"
+        url: "{{ rpi_display_scripts_git_url }}/{{ item }}"
         dest: "~/{{ item }}"
-      loop:
-        - sys_status.py
-        - reset_display.py
+      loop: "{{ rpi_display_scripts }}"

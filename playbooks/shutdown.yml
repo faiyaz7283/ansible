@@ -1,7 +1,7 @@
 ---
 - name: Shutdown
-  hosts: cla
-
+  hosts: "{{ target_hosts | default('all') }}"
+  
   tasks:
     - name: System shutdown
       become: yes

@@ -1,24 +1,18 @@
 ---
 - name: Remove overclocking
-  become: yes
-  hosts: cla
-
-  vars:
-    overclock_lines:
-      - "# Overclock"
-      - "over_voltage=5"
-      - "arm_freq=2000"
+  hosts: "{{ target_hosts | default('cla, ci') }}"
     
   tasks:
-    - name: "Remove overclocking lines from usercfg.txt"
+    - name: "Remove overclocking lines from {{ boot_usercfg_txt_file }}"
       become: yes
       lineinfile:
         state: absent
-        path: /boot/firmware/usercfg.txt
+        path: "{{ boot_usercfg_txt_file }}"
         line: "{{ item }}"
       loop: "{{ overclock_lines }}"
       register: overclock_removed
 
     - name: Reboot to take effect
+      become: yes
       when: overclock_removed is changed
       reboot:

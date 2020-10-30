@@ -1,0 +1,30 @@
+---
+- name: Remove Jenkins from system
+  hosts: "{{ target_hosts | default('cicd') }}"
+
+  tasks:
+    - name: Stop Jenkins service
+      become: yes
+      systemd:
+        name: jenkins
+        state: stopped
+        
+    - name: Remove Jenkins
+      become: yes
+      apt:
+        state: absent
+        purge: yes
+        pkg: "{{ jenkins_apt_pkgs }}"
+
+    - name: Remove Jenkins LTS debian repository
+      become: yes
+      apt_repository:
+        state: absent
+        repo: "{{ jenkins_lts_apt_repo }}"
+
+    - name: Remove Jenkins apt key
+      become: yes
+      apt_key:
+        state: absent
+        url: "{{ jenkins_gpg_url }}"
+        id: "{{ jenkins_gpg_id }}"

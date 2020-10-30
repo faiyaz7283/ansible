@@ -1,14 +1,10 @@
 ---
 - name: Remove raspi-config
-  become: yes
-  hosts: cla
-
-  vars:
-    raspi_config: raspi-config_20200902_all.deb
-    raspi_config_dl: "https://archive.raspberrypi.org/debian/pool/main/r/raspi-config/{{ raspi_config }}"
+  hosts: "{{ target_hosts | default('debian') }}"
 
   tasks:
     - name: Remove raspi-config
+      become: yes
       apt:
         state: absent
         autoremove: yes

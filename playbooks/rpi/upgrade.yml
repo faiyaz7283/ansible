@@ -1,0 +1,35 @@
+---
+- name: System upgrade
+  hosts: "{{ target_hosts | default('debian') }}"
+  
+  tasks:
+    - name: Clean up first to prevent out of disk issue 
+      become: yes
+      apt:
+        autoclean: yes
+        autoremove: yes
+    
+    - name: Upgrade
+      become: yes
+      apt:
+        update_cache: yes
+        upgrade: yes
+        autoclean: yes
+        autoremove: yes
+      register: ug
+
+    - name: Reboot if upgrade failed
+      become: yes
+      when: ug is failed
+      reboot:
+
+    - name: Upgrade again if failed previously
+      become: yes
+      when: ug is failed
+      apt:
+        update_cache: yes
+        upgrade: yes
+        autoclean: yes
+        autoremove: yes
+ 
+        

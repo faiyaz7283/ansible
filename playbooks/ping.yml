@@ -1,7 +1,10 @@
 ---
-- name: Ping
-  hosts: cla
+- name: Ping everything
+  hosts: "{{ target_hosts | default('all') }}"
 
   tasks:
-  - name: Ping check
+  - name: Ping >< Pong
     ping:
+
+
+      

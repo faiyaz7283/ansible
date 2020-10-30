@@ -1,7 +1,7 @@
 ---
 - name: Reboot
-  hosts: cla
-
+  hosts: "{{ target_hosts | default('all') }}"
+  
   tasks:
   - name: Reboot
     become: yes

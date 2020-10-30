@@ -1,0 +1,30 @@
+---
+- name: Install Jenkins server
+  hosts: "{{ target_hosts | default('ci') }}"
+
+  tasks:
+    - name: Install Java
+      become: yes
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+        pkg: "{{ java_apt_pkgs }}"
+
+    - name: Add Jenkins apt key
+      become: yes
+      apt_key:
+        url: "{{ jenkins_gpg_url }}"
+        id: "{{ jenkins_gpg_id }}"
+
+    - name: Add Jenkins LTS debian repository
+      become: yes
+      apt_repository:
+        update_cache: yes
+        repo: "{{ jenkins_lts_apt_repo }}"
+          
+    - name: Install Jenkins
+      become: yes
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+        pkg: "{{ jenkins_apt_pkgs }}"
