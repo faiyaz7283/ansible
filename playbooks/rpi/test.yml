@@ -1,0 +1,21 @@
+---
+- name: Testing chinga
+  hosts: "{{ target_hosts | default('cla00') }}"
+
+  tasks:
+    - name: "Enable cgroup limit support in {{ boot_cmdline_txt_file }} by appending"
+      become: yes
+      lineinfile:
+        path: "{{ boot_cmdline_txt_file }}"
+        regexp: '^(((?!{{ k8s_cgroup_limit_support_append }}).)*)$'
+        line: '\1 {{ k8s_cgroup_limit_support_append }}'
+        backrefs: yes
+      register: string_append
+
+    - name: "Disable cgroup limit support in {{ boot_cmdline_txt_file }}"
+      become: yes
+      replace:
+        path: "{{ boot_cmdline_txt_file }}"
+        regexp: "{{ k8s_cgroup_limit_support_append }}"
+        replace: ""
+      register: string_removed

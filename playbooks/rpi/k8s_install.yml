@@ -1,45 +1,13 @@
 ---
+- import_playbook: docker_install.yml
+- import_playbook: docker_cgroup_setup.yml
+  
 - name: Install and setup kubernetes cluster
   hosts: "{{ target_hosts | default('cla') }}"
 
   tasks:
-    - name: "Change cgroup driver to systemd in {{ k8s_docker_daemon_json_file }}"
-      become: yes
-      copy:
-        content: "{{ k8s_docker_cgroup_systemd_json_file | to_nice_json }}"
-        dest: "{{ k8s_docker_daemon_json_file }}"
-      register: cgroup_systemd
-        
-    - name: "Setup docker systemd service dir as {{ k8s_docker_systemd_service_dir }}"
-      become: yes
-      file:
-        path: "{{ k8s_docker_systemd_service_dir }}"
-        state: directory
-      register: docker_systemd_dir
-
-    - name: Reload daemon, restart and enable docker on boot
-      become: yes
-      systemd:
-        daemon_reload: yes
-        enabled: yes
-        name: docker
-        state: restarted
-      when: cgroup_systemd is changed or docker_systemd_dir is changed
-        
-    - name: "Enable cgroup limit support in {{ boot_cmdline_txt_file }}"
-      become: yes
-      lineinfile:
-        path: "{{ boot_cmdline_txt_file }}"
-        line: "{{ item }}"
-      loop: "{{ k8s_cgroup_limit_support_lines }}"
-      register: cgroup_limit
-
-    - name: Reboot
-      become: yes
-      when: cgroup_limit is changed
-      reboot:
-        
     - name: "Enable {{ k8s_required_modules | join(', ') }} module(s)"
+      become: yes
       community.general.modprobe:
         name: "{{ item }}"
       loop: "{{ k8s_required_modules }}"

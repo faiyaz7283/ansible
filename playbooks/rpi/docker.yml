@@ -1,0 +1,25 @@
+---
+- name: Docker engine
+  hosts: "{{ target_hosts | default('cla') }}"
+
+  roles:
+    - role: docker_install
+      tags:
+        - inst
+        - cgroup
+
+    - role: docker_cgroup_setup
+      tags:
+        - cgroup
+        - never
+
+    - role: docker_cgroup_rollback
+      tags:
+        - cgroup_rb
+        - rm
+        - never
+
+    - role: docker_remove
+      tags:
+        - rm
+        - never    
