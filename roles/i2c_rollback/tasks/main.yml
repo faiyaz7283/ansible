@@ -1,0 +1,47 @@
+---
+- name: Remove scripts for I2C display devices
+  file:
+    state: absent
+    path: "~/{{ item }}"
+  loop: "{{ rpi_display_scripts }}"
+  
+- name: "Rollback I2C core increase in {{ boot_usercfg_txt_file }}"
+  become: yes
+  lineinfile:
+    state: absent
+    path: "{{ boot_usercfg_txt_file }}"
+    line: "{{ item }}"
+  loop: "{{ i2c_increase_core_lines }}"
+  register: i2c_core_increase_rollback
+
+- name: "If I2C is enabled in {{ boot_usercfg_txt_file }} only then disable"
+  become: yes
+  lineinfile:
+    state: absent
+    path: "{{ boot_usercfg_txt_file }}"
+    line: "{{ item }}"
+  loop: "{{ i2c_enable_lines }}"
+  register: i2c_disable
+
+- name: Reboot the system if config changes were made
+  become: yes
+  when: i2c_disable is changed or i2c_core_increase_rollback is changed
+  reboot:
+    
+- name: Remove Python libraries for display device
+  pip:
+    state: absent
+    name: "{{ ssd1306_pip_pkgs }}"
+    
+- name: "Remove the {{ i2c_group }} group"
+  become: yes
+  group:
+    state: absent
+    name: "{{ i2c_group }}"
+    
+- name: Remove I2C management related tools
+  become: yes
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+    pkg: "{{ i2c_tools_apt_packages }}"
