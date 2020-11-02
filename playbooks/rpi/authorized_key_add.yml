@@ -1,9 +1,0 @@
----
-- name: Add authorized key
-  hosts: "{{ target_hosts | default('cla') }}"
-
-  tasks:
-    - name: "Add authorized key"
-      lineinfile:
-        path: "{{ auth_keys_file | default('~/.ssh/authorized_keys') }}"
-        line: "{{ authorized_key }}"

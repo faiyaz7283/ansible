@@ -1,0 +1,31 @@
+---
+- name: Overclocking
+  hosts: "{{ target_hosts | default('cla, ci') }}"
+
+  tasks:
+    - name: "Add overclocking lines in {{ boot_usercfg_txt_file }}"
+      become: yes
+      lineinfile:
+        path: "{{ boot_usercfg_txt_file }}"
+        line: "{{ item }}"
+      loop: "{{ overclock_lines }}"
+      register: overclock_added
+      tags:
+        - add
+      
+    - name: "Remove overclocking lines from {{ boot_usercfg_txt_file }}"
+      become: yes
+      lineinfile:
+        state: absent
+        path: "{{ boot_usercfg_txt_file }}"
+        line: "{{ item }}"
+      loop: "{{ overclock_lines }}"
+      register: overclock_removed
+      tags:
+        - rm
+        - never
+      
+    - name: Reboot to take effect
+      become: yes
+      when: overclock_added is changed or overclock_removed is changed
+      reboot:

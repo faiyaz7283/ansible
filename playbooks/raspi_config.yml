@@ -9,3 +9,16 @@
         update_cache: yes
         cache_valid_time: 3600
         deb: "{{ raspi_config_all_deb }}"
+      tags:
+        - add
+        
+    - name: Remove raspi-config
+      become: yes
+      apt:
+        state: absent
+        autoremove: yes
+        purge: yes
+        name: raspi-config
+      tags:
+        - rm
+        - never

@@ -1,0 +1,13 @@
+---
+- name: I2C setup
+  hosts: "{{ target_hosts | default('debian') }}"
+
+  roles:
+    - role: i2c_setup
+      tags:
+        - setup
+
+    - role: i2c_rollback
+      tags:
+        - rb
+        - never

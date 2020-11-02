@@ -1,0 +1,13 @@
+---
+- name: kubernetes
+  hosts: "{{ target_hosts | default('cla') }}"
+
+  roles:
+    - role: k8s_install
+      tags:
+        - inst
+
+    - role: k8s_remove
+      tags:
+        - rm
+        - never
