@@ -1,0 +1,96 @@
+---
+- name: Setup continous integration and development
+  hosts: "{{ target_hosts | default('cicd') }}"
+
+  tasks:
+    - name: Setup syntax checker and analysis tools
+      block:        
+        - name: Install ansible-lint
+          pip:
+            state: present
+            name: ansible-lint
+            extra_args: --user
+          tags:
+            - ansible-lint
+            - ansible
+            - yml
+
+        - name: Install yamllint
+          pip:
+            state: present
+            name: yamllint
+            extra_args: --user
+          tags:
+            - yamllint
+            - yml
+
+        - name: Install pylint
+          become: yes
+          apt:
+            state: present
+            update_cache: yes
+            cache_valid_time: 3600
+            pkg: pylint
+          tags:
+            - pylint
+            - python
+
+        - name: Install shellcheck
+          become: yes
+          apt:
+            state: present
+            update_cache: yes
+            cache_valid_time: 3600
+            pkg: shellcheck
+          tags:
+            - shellcheck
+            - shell
+      tags:
+        - linters
+
+    - name: Setup testing frameworks
+      block:
+        - name: Setup bats-core
+          block:
+            - name: Check if bats exist
+              command: bats
+              register: bats_check
+
+            - name: Install bats via script
+              command: "bash <(curl -sL tiny.cc/scripts-shell-bats-core) install" 
+              when: bats_check.rc == 1
+          
+        - name: Setup molecule
+          block:
+            - name: Install ansible
+              pip:
+                state: present
+                name: ansible
+                extra_args: --user
+              tags:
+                - ansible
+
+            - name: Install molecule
+              pip:
+                state: present
+                name: molecule
+                extra_args: --user
+              tags:
+                - molecule
+                - ansible
+          tags:
+            - molecule
+            - ansible
+ 
+        - name: Install pytest
+          pip:
+            state: present
+            name: pytest
+            extra_args: --user
+          tags:
+            - pytest
+            - python
+      tags:
+        - test_suites
+
+        

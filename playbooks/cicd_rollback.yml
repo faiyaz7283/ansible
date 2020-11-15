@@ -1,0 +1,88 @@
+---
+- name: Rollback continous integration and development tools
+  hosts: "{{ target_hosts | default('cicd') }}"
+
+  tasks:
+    - name: Rollback syntax checker and analysis tools
+      block:        
+        - name: Remove ansible-lint
+          pip:
+            state: absent
+            name: ansible-lint
+          tags:
+            - ansible-lint
+            - ansible
+            - yml
+
+        - name: Remove yamllint
+          pip:
+            state: absent
+            name: yamllint
+          tags:
+            - yamllint
+            - yml
+
+        - name: Remove pylint
+          become: yes
+          apt:
+            state: absent
+            pkg: pylint
+          tags:
+            - pylint
+            - python
+
+        - name: Remove shellcheck
+          become: yes
+          apt:
+            state: absent
+            pkg: shellcheck
+          tags:
+            - shellcheck
+            - shell
+      tags:
+        - linters
+
+    - name: Rollback testing frameworks
+      block:
+        - name: Setup bats-core
+          block:
+            - name: Check if bats exist
+              command: bats
+              register: bats_check
+
+            - name: Remove bats via script
+              command: "bash <(curl -sL tiny.cc/scripts-shell-bats-core) remove" 
+              when: bats_check.rc == 0
+          tags:
+            - bats-core
+            - shell
+              
+        - name: Rollback molecule
+          block:
+            - name: Remove ansible
+              pip:
+                state: absent
+                name: ansible
+              tags:
+                - ansible
+
+            - name: Remove molecule
+              pip:
+                state: absent
+                name: molecule
+              tags:
+                - molecule
+                - ansible
+          tags:
+            - molecule
+            - ansible
+ 
+        - name: Remove pytest
+          pip:
+            state: absent
+            name: pytest
+          tags:
+            - pytest
+            - python
+      tags:
+        - test_suites
