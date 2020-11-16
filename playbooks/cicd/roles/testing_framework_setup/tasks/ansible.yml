@@ -1,0 +1,11 @@
+---
+- name: Install molecule along with ansible
+  pip:
+    state: present
+    name:
+      - ansible
+      - molecule
+    extra_args: --user
+  tags:
+    - ansible
+    - molecule

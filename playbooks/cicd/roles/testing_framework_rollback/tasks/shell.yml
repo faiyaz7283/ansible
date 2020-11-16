@@ -1,0 +1,11 @@
+---
+- name: Remove bats-core
+  become: yes
+  script: "{{ lookup('env', 'HOME') }}/projects/scripts/shell/bats-core.sh remove"
+  args:
+    removes: /usr/local/bin/bats
+  tags:
+    - bash
+    - bats
+    - bats-core
+    - shell

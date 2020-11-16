@@ -1,0 +1,15 @@
+---
+- name: Java
+  import_tasks: java.yml
+  tags:
+    - java
+    
+- name: PPA
+  import_tasks: ppa.yml
+  tags:
+    - ppa
+      
+- name: Jenkins
+  import_tasks: jenkins.yml
+  tags:
+    - jenkins

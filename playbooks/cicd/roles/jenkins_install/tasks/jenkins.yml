@@ -1,0 +1,10 @@
+---
+- name: Install Jenkins
+  become: yes
+  apt:
+    state: present
+    update_cache: yes
+    cache_valid_time: 3600
+    pkg: "{{ jenkins_apt_pkgs }}"
+  tags:
+    - jenkins

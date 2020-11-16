@@ -1,0 +1,10 @@
+---
+- name: Docker engine
+  import_tasks: engine.yml
+  tags:
+    - engine
+  
+- name: cgroup setup post docker install 
+  import_tasks: cgroup.yml
+  tags:
+    - cgroup

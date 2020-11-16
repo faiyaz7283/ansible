@@ -1,0 +1,9 @@
+---
+- name: Ansible testing tools
+  import_tasks: ansible.yml
+
+- name: Python testing tools
+  import_tasks: python.yml
+
+- name: Shell testing tools
+  import_tasks: shell.yml

@@ -1,0 +1,39 @@
+---
+- name: "Change cgroup driver to systemd in {{ docker_daemon_json_file }}"
+  become: yes
+  copy:
+    content: "{{ docker_cgroup_systemd_json_file | to_nice_json }}"
+    dest: "{{ docker_daemon_json_file }}"
+  register: cgroup_systemd
+    
+- name: "Setup docker systemd service dir as {{ docker_systemd_service_dir }}"
+  become: yes
+  file:
+    path: "{{ docker_systemd_service_dir }}"
+    state: directory
+  register: docker_systemd_dir
+
+- name: Reload daemon, restart and enable docker on boot
+  become: yes
+  systemd:
+    daemon_reload: yes
+    enabled: yes
+    name: docker
+    state: restarted
+  when: cgroup_systemd is changed or docker_systemd_dir is changed
+    
+- name: "Enable cgroup limit support in {{ boot_cmdline_txt_file }} by appending"
+  become: yes
+  when: ansible_facts['distribution'] == "Ubuntu" and 'raspi' in ansible_kernel
+  lineinfile:
+    state: present
+    path: "{{ boot_cmdline_txt_file }}"
+    regexp: '^(((?!{{ docker_cgroup_limit_support_append }}).)*)$'
+    line: '\1 {{ docker_cgroup_limit_support_append }}'
+    backrefs: yes
+  register: string_append
+
+- name: Reboot
+  become: yes
+  when: string_append is changed
+  reboot:

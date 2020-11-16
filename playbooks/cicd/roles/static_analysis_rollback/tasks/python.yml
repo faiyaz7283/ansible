@@ -1,0 +1,10 @@
+---
+- name: Remove pylint
+  become: yes
+  apt:
+    state: absent
+    pkg: pylint
+  tags:
+    - lint
+    - pylint
+    - python

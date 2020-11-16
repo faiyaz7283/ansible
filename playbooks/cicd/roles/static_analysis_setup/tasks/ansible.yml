@@ -1,0 +1,10 @@
+---
+- name: Install ansible-lint
+  pip:
+    state: present
+    name: ansible-lint
+    extra_args: --user
+  tags:
+    - ansible
+    - ansible-lint
+    - lint

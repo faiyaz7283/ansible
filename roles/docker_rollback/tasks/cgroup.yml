@@ -1,0 +1,37 @@
+---
+- name: "Remove docker systemd service dir recursively in {{ docker_systemd_service_dir }}"
+  become: yes
+  file:
+    state: absent
+    path: "{{ docker_systemd_service_dir }}"
+  register: docker_systemd_dir
+
+- name: "Remove cgroup driver systemd by removing file {{ docker_daemon_json_file }}"
+  become: yes
+  file:
+    state: absent
+    path: "{{ docker_daemon_json_file }}"
+  register: cgroup_systemd
+    
+- name: Reload daemon, restart and enable docker on boot
+  become: yes
+  systemd:
+    daemon_reload: yes
+    enabled: yes
+    name: docker
+    state: restarted
+  when: cgroup_systemd is changed or docker_systemd_dir is changed
+
+- name: "Remove cgroup limit support in {{ boot_cmdline_txt_file }}"
+  become: yes
+  when: ansible_facts['distribution'] == "Ubuntu" and 'raspi' in ansible_kernel
+  replace:
+    path: "{{ boot_cmdline_txt_file }}"
+    regexp: "{{ docker_cgroup_limit_support_append }}"
+    replace: ""
+  register: string_removed
+
+- name: Reboot
+  become: yes
+  when: string_removed is changed
+  reboot:

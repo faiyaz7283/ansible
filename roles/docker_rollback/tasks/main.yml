@@ -1,0 +1,10 @@
+---
+- name: Docker engine
+  import_tasks: engine.yml
+  tags:
+    - engine
+  
+- name: cgroup rollback post docker remove 
+  import_tasks: cgroup.yml
+  tags:
+    - cgroup

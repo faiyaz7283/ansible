@@ -1,0 +1,9 @@
+---
+- name: Remove ansible-lint
+  pip:
+    state: absent
+    name: ansible-lint
+  tags:
+    - ansible
+    - ansible-lint
+    - lint

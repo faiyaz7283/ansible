@@ -1,0 +1,10 @@
+---
+- name: Remove yamllint
+  pip:
+    state: absent
+    name: yamllint
+  tags:
+    - lint
+    - yaml
+    - yamllint
+    - yml

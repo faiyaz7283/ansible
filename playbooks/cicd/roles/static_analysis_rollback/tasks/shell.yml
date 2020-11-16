@@ -1,0 +1,11 @@
+---
+- name: Remove shellcheck
+  become: yes
+  apt:
+    state: absent
+    pkg: shellcheck
+  tags:
+    - bash
+    - lint
+    - shell
+    - shellcheck

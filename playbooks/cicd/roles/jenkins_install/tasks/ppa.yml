@@ -1,0 +1,20 @@
+---
+- name: Add Jenkins apt key
+  become: yes
+  apt_key:
+    state: present
+    url: "{{ jenkins_gpg_url }}"
+    id: "{{ jenkins_gpg_id }}"
+  tags:
+    - apt-key
+    - ppa
+    
+- name: Add Jenkins LTS debian repository
+  become: yes
+  apt_repository:
+    state: present
+    update_cache: yes
+    repo: "{{ jenkins_lts_apt_repo }}"
+  tags:
+    - apt-repo
+    - ppa

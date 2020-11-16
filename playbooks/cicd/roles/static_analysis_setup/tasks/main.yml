@@ -1,0 +1,21 @@
+---
+- name: Ansible static analysis tools
+  import_tasks: ansible.yml
+  tags:
+    - ansible
+  
+- name: Python static analysis tools
+  import_tasks: python.yml
+  tags:
+    - python
+  
+- name: Shell static analysis tools
+  import_tasks: shell.yml
+  tags:
+    - shell
+  
+- name: YAML static analysis tools
+  import_tasks: yaml.yml
+  tags:
+    - yaml
+    - yml

@@ -1,0 +1,10 @@
+---
+- name: Remove molecule along with ansible
+  pip:
+    state: absent
+    name:
+      - ansible
+      - molecule
+  tags:
+    - ansible
+    - molecule

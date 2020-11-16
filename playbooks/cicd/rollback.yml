@@ -1,18 +1,29 @@
 ---
 - name: Rollback continous integration and development
   hosts: "{{ target_hosts | default('cicd') }}"
-
+  ignore_errors: yes
+  
   tasks:
+    - name: Docker
+      import_role:
+        name: docker_rollback
+      tags:
+        - docker
+
+    - name: Jenkins
+      import_role:
+        name: jenkins_remove
+      tags:
+        - jenkins
+    
     - name: Static analysis
       import_role:
         name: static_analysis_rollback
       tags:
         - analysis
-        - static-analysis
 
     - name: Testing framework
       import_role:
         name: testing_framework_rollback
       tags:
         - testing
-        - testing-framework

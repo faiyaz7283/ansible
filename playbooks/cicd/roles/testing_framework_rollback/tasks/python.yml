@@ -1,0 +1,8 @@
+---
+- name: Remove pytest
+  pip:
+    state: absent
+    name: pytest
+  tags:
+    - python
+    - pytest

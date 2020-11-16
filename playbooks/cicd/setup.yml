@@ -1,18 +1,29 @@
 ---
 - name: Setup continous integration and development
   hosts: "{{ target_hosts | default('cicd') }}"
-
+  ignore_errors: yes
+  
   tasks:
+    - name: Docker
+      import_role:
+        name: docker_setup
+      tags:
+        - docker
+
+    - name: Jenkins
+      import_role:
+        name: jenkins_install
+      tags:
+        - jenkins
+    
     - name: Static analysis
       import_role:
         name: static_analysis_setup
       tags:
         - analysis
-        - static-analysis
 
     - name: Testing framework
       import_role:
         name: testing_framework_setup
       tags:
         - testing
-        - testing-framework

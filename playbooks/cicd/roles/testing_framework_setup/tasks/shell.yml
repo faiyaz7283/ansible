@@ -1,0 +1,11 @@
+---
+- name: Install bats-core
+  become: yes
+  script: "{{ lookup('env', 'HOME') }}/projects/scripts/shell/bats-core.sh install"
+  args:
+    creates: /usr/local/bin/bats
+  tags:
+    - bash
+    - bats
+    - bats-core
+    - shell

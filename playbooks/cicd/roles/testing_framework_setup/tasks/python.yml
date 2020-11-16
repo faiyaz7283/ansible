@@ -1,0 +1,9 @@
+---
+- name: Install pytest
+  pip:
+    state: present
+    name: pytest
+    extra_args: --use
+  tags:
+    - python
+    - pytest

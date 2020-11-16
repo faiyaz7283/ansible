@@ -1,0 +1,11 @@
+---
+- name: Install yamllint
+  pip:
+    state: present
+    name: yamllint
+    extra_args: --user
+  tags:
+    - lint
+    - yaml
+    - yamllint
+    - yml
