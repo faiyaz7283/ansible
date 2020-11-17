@@ -1,7 +1,6 @@
 ---
 - name: Setup continous integration and development
   hosts: "{{ target_hosts | default('cicd') }}"
-  ignore_errors: yes
   
   tasks:
     - name: Docker

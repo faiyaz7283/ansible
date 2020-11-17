@@ -3,7 +3,7 @@
   pip:
     state: present
     name: pytest
-    extra_args: --use
+    extra_args: --user
   tags:
     - python
     - pytest
