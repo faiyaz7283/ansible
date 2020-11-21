@@ -1,5 +1,6 @@
 ---
 - name: System upgrade
+  gather_facts: no
   hosts: "{{ target_hosts | default('debian') }}"
   
   tasks:

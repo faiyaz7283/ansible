@@ -1,5 +1,6 @@
 ---
 - name: Ping everything
+  gather_facts: no
   hosts: "{{ target_hosts | default('all') }}"
 
   tasks:
