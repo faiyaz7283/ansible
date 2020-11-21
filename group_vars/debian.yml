@@ -68,18 +68,4 @@ java_apt_pkgs: openjdk-8-jdk
 jenkins_apt_pkgs: jenkins
 jenkins_gpg_url: https://pkg.jenkins.io/debian-stable/jenkins.io.key
 jenkins_gpg_id: 62A9756BFD780C377CF24BA8FCEF32E745F2C3D5
-jenkins_lts_apt_repo: "deb https://pkg.jenkins.io/debian-stable binary/" 
-
-# k8s_install, k8s_remove
-k8s_gpg_id: 54A647F9048D5688D7DA2ABE6A030B21BA07F4FB
-k8s_gpg_url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
-k8s_apt_repo: "deb https://apt.kubernetes.io/ kubernetes-xenial main"
-k8s_required_apt_pkgs: ["apt-transport-https", "curl"]
-k8s_apt_pkgs: ["kubelet", "kubeadm", "kubectl"]
-k8s_apt_remove_pkgs: "{{ k8s_apt_pkgs + ['kubernetes-cni', 'kube*'] }}"
-k8s_required_modules: ["br_netfilter"]
-k8s_sysctl_conf_file: /etc/sysctl.d/k8s.conf
-k8s_sysctl_conf:
-    "net.bridge.bridge-nf-call-ip6tables": "1"
-    "net.bridge.bridge-nf-call-iptables": "1"
-k8s_kube_dir: ~/.kube
+jenkins_lts_apt_repo: "deb https://pkg.jenkins.io/debian-stable binary/"
