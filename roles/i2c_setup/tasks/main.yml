@@ -41,6 +41,8 @@
     line: "{{ item }}"
   loop: "{{ i2c_increase_core_lines }}"
   register: i2c_core_increase
+  tags:
+    - i2c-core-increase
 
 - name: Reboot the system if config changes were made
   become: yes
@@ -52,4 +54,6 @@
     url: "{{ rpi_display_scripts_git_url }}/{{ item }}"
     dest: "~/{{ item }}"
   loop: "{{ rpi_display_scripts }}"
+  tags:
+    - download-scripts
 

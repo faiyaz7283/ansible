@@ -4,6 +4,8 @@
     state: absent
     path: "~/{{ item }}"
   loop: "{{ rpi_display_scripts }}"
+  tags:
+    - remove-scripts
   
 - name: "Rollback I2C core increase in {{ boot_usercfg_txt_file }}"
   become: yes
@@ -13,6 +15,8 @@
     line: "{{ item }}"
   loop: "{{ i2c_increase_core_lines }}"
   register: i2c_core_increase_rollback
+  tags:
+    - i2c-core-decrease
 
 - name: "If I2C is enabled in {{ boot_usercfg_txt_file }} only then disable"
   become: yes
