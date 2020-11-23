@@ -1,0 +1,16 @@
+---
+- name: Setup k8s
+  hosts: "{{ target_hosts | default('cla') }}"
+  
+  tasks:
+    - name: Docker
+      import_role:
+        name: docker_setup
+      tags:
+        - docker
+
+    - name: Kubernetes
+      import_role:
+        name: k8s_setup
+      tags:
+        - k8s
