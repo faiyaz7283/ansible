@@ -1,0 +1,10 @@
+---
+- name: Rollback k8s
+  hosts: "{{ target_hosts | default('cla') }}"
+  
+  tasks:
+    - name: Kubernetes
+      import_role:
+        name: rollback
+      tags:
+        - k8s

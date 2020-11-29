@@ -1,0 +1,19 @@
+---
+- name: Get the join command from master node
+  shell: kubeadm token create --print-join-command
+  register: join_worker_cmd
+  when: inventory_hostname in groups['cla_master']
+  tags:
+    - get-join-cmd
+
+- name: Join workers to cluster
+  become: yes
+  shell: "{{ hostvars[groups['cla_master'][0]].join_worker_cmd.stdout }} --ignore-preflight-errors all  >> {{ worker_joined_txt }}"
+  args:
+    chdir: "{{ ansible_user_home }}"
+    creates: "{{ worker_joined_txt }}"
+  when: inventory_hostname in groups['cla_workers']
+  with_inventory_hostnames:
+    - cla_master
+  tags:
+    - join

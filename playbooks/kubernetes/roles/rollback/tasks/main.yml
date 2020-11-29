@@ -1,0 +1,103 @@
+---
+- name: Kubeadm reset
+  become: yes
+  command: kubeadm reset -f
+  ignore_errors: true
+  tags:
+    - reset
+  
+- name: "Unhold {{ apt_pkgs | join(', ') }} apt packages from any system upgrades"
+  become: yes
+  dpkg_selections:
+    name: "{{ item }}"
+    selection: deinstall
+  loop: "{{ apt_pkgs }}"
+  tags:
+    - unhold
+
+- name: "Removing {{ apt_remove_pkgs | join(', ') }} apt packages"
+  become: yes
+  apt:
+    state: absent
+    purge: yes
+    autoremove: yes
+    pkg: "{{ apt_remove_pkgs }}"
+  register: removed
+  tags:
+    - apt-pkgs
+
+- name: Reboot
+  become: yes
+  when: removed is changed
+  reboot:
+  tags:
+    - reboot
+
+- name: "Remove directory {{ kube_dir }}"
+  become: yes
+  file:
+    state: absent
+    path: "{{ kube_dir }}"
+  tags:
+    - kube-dir
+
+- name: "Remove CNI configuration directory {{ cni_conf_dir }}"
+  become: yes
+  file:
+    state: absent
+    path: "{{ cni_conf_dir }}"
+  tags:
+    - cni
+
+- name: Remove kubernetes repository
+  become: yes
+  apt_repository:
+    state: absent
+    repo: "{{ apt_repo }}"
+  tags:
+    - repo
+
+- name: Remove google GPG apt key
+  become: yes
+  apt_key:
+    state: absent
+    url: "{{ gpg_url }}" 
+    id: "{{ gpg_id }}"
+  tags:
+    - key
+    
+- name: Rollback iptables bridged traffic setup
+  become: yes
+  ansible.posix.sysctl:
+    state: absent
+    name: "{{ item.key }}"
+    value: "{{ item.value }}"
+    sysctl_file: "{{ sysctl_conf_file }}"
+  loop: "{{ lookup('dict', sysctl_conf) }}"
+  tags:
+    - iptables
+
+- name: "Remove the {{ sysctl_conf_file }} file"
+  become: yes
+  file:
+    state: absent
+    path: "{{ sysctl_conf_file }}"
+  tags:
+    - sysctl
+  
+- name: "Disable {{ required_modules | join(', ') }} module(s)"
+  become: yes
+  community.general.modprobe:
+    state: absent
+    name: "{{ item }}"
+  loop: "{{ required_modules }}"
+  tags:
+    - modules
+
+- name: Cleanup all files that were created during master and worker setup
+  file:
+    path: "{{ item }}"
+    state: absent
+  loop: "{{ [cluster_init_txt, cni_add_on_txt, worker_joined_txt] }}"
+  tags:
+    - cleanup

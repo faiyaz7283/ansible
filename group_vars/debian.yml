@@ -2,6 +2,7 @@
 # General variables
 ansible_user: ubuntu
 ansible_python_interpreter: /usr/bin/python3
+ansible_user_home: "/home/{{ ansible_user }}"
 
 # RPI-Ubuntu image related
 boot_usercfg_txt_file: /boot/firmware/usercfg.txt

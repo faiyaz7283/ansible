@@ -1,0 +1,33 @@
+---
+- name: Testing playbook
+  gather_facts: no
+  hosts: "{{ target_hosts | default('cla') }}"
+  vars:
+    tinker: "~/.cache"
+    cluster_init_txt: cluster_init.txt
+    cni_add_on_txt: cni_add_on.txt
+    worker_joined_txt: worker_joined.txt
+
+  tasks:
+    - name: List home directory
+      shell: "ls -lah"
+      args:
+        chdir: "$HOME"
+      tags:
+        - home
+
+    - name: Check magic variable
+      debug:
+        msg: "{{ group_names }}"
+      when: "'cla-master' in group_names"
+      tags:
+        - magic
+
+    - name: Condition check
+      debug:
+        msg: "{{ item }} "
+      loop: "{{ [cluster_init_txt, cni_add_on_txt, worker_joined_txt] }}"
+      tags:
+        - loop-test
+
+        

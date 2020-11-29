@@ -1,0 +1,33 @@
+---
+- name: Setup k8s with docker
+  gather_facts: yes
+  hosts: "{{ target_hosts | default('cla') }}"
+  tags:
+    - setup
+
+  roles:
+    - role: docker_setup
+      tags:
+        - docker
+
+    - role: setup
+      tags:
+        - k8s
+
+- name: Initialize a cluster and setup master node
+  gather_facts: no
+  hosts: "{{ master_hosts | default('cla_master') }}"
+
+  roles:
+    - role: cluster_init
+      tags:
+        - master
+
+- name: Join woker nodes to the cluster
+  gather_facts: no
+  hosts: "{{ master_hosts | default('cla') }}" 
+
+  roles:
+    - role: join_workers
+      tags:
+        - workers

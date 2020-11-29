@@ -1,0 +1,53 @@
+---
+- name: "Enable {{ required_modules | join(', ') }} module(s)"
+  become: yes
+  community.general.modprobe:
+    state: present
+    name: "{{ item }}"
+  loop: "{{ required_modules }}"
+    
+- name: Let iptables see bridged traffic
+  become: yes
+  ansible.posix.sysctl:
+    state: present
+    name: "{{ item.key }}"
+    value: "{{ item.value }}"
+    sysctl_file: "{{ sysctl_conf_file }}"
+  loop: "{{ lookup('dict', sysctl_conf) }}"
+  
+- name: Install packages to allow apt to use a repository over HTTPS
+  become: yes
+  apt:
+    state: present
+    update_cache: yes
+    cache_valid_time: 3600
+    pkg: "{{ required_apt_pkgs }}"
+    
+- name: Add google GPG apt key
+  become: yes
+  apt_key:
+    state: present
+    url: "{{ gpg_url }}" 
+    id: "{{ gpg_id }}"
+
+- name: Add kubernetes repository
+  become: yes
+  apt_repository:
+    state: present
+    update_cache: yes
+    repo: "{{ apt_repo }}"
+    
+- name: "Install {{ apt_pkgs | join(', ') }} apt packages"
+  become: yes
+  apt:
+    state: present
+    update_cache: yes
+    cache_valid_time: 3600
+    pkg: "{{ apt_pkgs }}"        
+
+- name: "Hold {{ apt_pkgs | join(', ') }} apt packages from any system upgrades"
+  become: yes
+  dpkg_selections:
+    name: "{{ item }}"
+    selection: hold
+  loop: "{{ apt_pkgs }}"

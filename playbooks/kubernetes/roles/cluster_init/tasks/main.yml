@@ -1,0 +1,37 @@
+---
+- name: Initialize the cluster
+  become: yes
+  shell: "kubeadm init --pod-network-cidr={{ network_cid }} >> {{ cluster_init_txt }}"
+  args:
+    chdir: "{{ ansible_user_home }}"
+    creates: "{{ cluster_init_txt }}"
+  tags:
+    - init-cluster
+
+- name: Create .kube directory
+  file:
+    path: "{{ kube_dir }}"
+    state: directory
+    mode: 0755
+  tags:
+    - kube-dir
+
+- name: Copy admin.conf to kube config
+  become: yes
+  copy:
+    remote_src: yes
+    src: /etc/kubernetes/admin.conf
+    dest: "{{ kube_dir }}/config"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+  tags:
+    - cp-admin-conf
+
+- name: Setup CNI add-on
+  shell: "kubectl apply -f {{ flannel_dl }} >> {{ cni_add_on_txt }}"
+  args:
+    chdir: $HOME
+    creates: "{{ cni_add_on_txt }}"
+  tags:
+    - cni-add-on
+
